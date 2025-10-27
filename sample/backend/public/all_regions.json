@@ -1,0 +1,16 @@
+[
+  {
+    "cadastral_number": "04:03:090202:2390",
+    "article": "ALT-001",
+    "region": "Чемальский район",
+    "area_ha": 2.5,
+    "price_per_plot_rub": 3500000
+  },
+  {
+    "cadastral_number": "04:03:090304:415",
+    "article": "ALT-002",
+    "region": "Майминский район",
+    "area_ha": 1.8,
+    "price_per_plot_rub": 2400000
+  }
+]
