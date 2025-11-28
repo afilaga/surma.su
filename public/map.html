@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Карта участка</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #0b1220;
+      color: #f3f4f6;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    #map { width: 100%; height: 100%; }
+    #loading {
+      position: absolute;
+      top: 20px; left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.85);
+      color: #fff; padding: 10px 18px;
+      border-radius: 8px; font-size: 15px; z-index: 1000;
+    }
+    .leaflet-attribution-flag { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="loading">Загрузка карты...</div>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.1/proj4.js"></script>
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+  <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.20"></script>
+
+  <script>
+    // --- Извлекаем параметр ---
+    const params = new URLSearchParams(window.location.search);
+    let cad = params.get("cad");
+
+    if (!cad) {
+      cad = "04:04:050604:209";
+      console.warn("❗ Не указан кадастровый номер. Показываю пример:", cad);
+      history.replaceState({}, "", `?cad=${cad}`);
+    }
+
+    const loading = document.getElementById("loading");
+    document.title = `Карта участка ${cad}`;
+
+    // --- Создаём карту ---
+    const map = L.map("map").setView([55, 85], 5);
+    L.maplibreGL({
+      style: "https://maps.starline.ru/api/style/v1/get?id=standard&accessToken=eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIiwiZG9tYWluIjoiIn0.eyJpc3MiOiJodHRwczovL21hcHMuc3RhcmxpbmUucnUiLCJpYXQiOjE3Mzg2NzQzNTAuNTU0MDEsInVpZCI6NDF9.",
+      attribution: '&copy; <a href="http://maps.starline.ru/">StarLine Maps</a>'
+    }).addTo(map);
+
+    // --- Проекции ---
+    proj4.defs("EPSG:3857", "+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 "
+      + "+x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs");
+    proj4.defs("EPSG:4326", "+proj=longlat +datum=WGS84 +no_defs");
+
+    // --- Преобразование координат ---
+    function transformCoords(coords) {
+      if (typeof coords[0] === "number") {
+        const [x, y] = coords;
+        const [lon, lat] = proj4("EPSG:3857", "EPSG:4326", [x, y]);
+        return [lon, lat];
+      } else if (Array.isArray(coords)) {
+        return coords.map(transformCoords);
+      }
+      return coords;
+    }
+
+    const apiUrl = `https://map.ru/api/kad/search?query=${encodeURIComponent(cad)}`;
+    console.log("→ Прямой запрос к API:", apiUrl);
+
+    // --- Загрузка геометрии ---
+    fetch(apiUrl)
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`Ошибка API: ${res.status} ${res.statusText}`);
+        const data = await res.json();
+
+        if (!data.success || !data.features?.length)
+          throw new Error("Нет данных об участке");
+
+        const feature = data.features[0];
+        const geometry = feature.geometry;
+        const transformed = transformCoords(geometry.coordinates);
+
+        // Создаем GeoJSON
+        const geojson = {
+          type: "FeatureCollection",
+          features: [{
+            type: "Feature",
+            geometry: { type: geometry.type, coordinates: transformed },
+            properties: feature.properties || {}
+          }]
+        };
+
+        // Добавляем полигон
+        const layer = L.geoJSON(geojson, {
+          style: {
+            color: "#2563eb",
+            weight: 2,
+            fillColor: "#7c3aed",
+            fillOpacity: 0.3
+          },
+          onEachFeature: (f, l) => {
+            const label = f.properties?.label || cad;
+            const addr = f.properties?.readable_address || "";
+            l.bindPopup(`<b>${label}</b><br>${addr}`);
+          }
+        }).addTo(map);
+
+        const bounds = layer.getBounds();
+        map.fitBounds(bounds);
+        setTimeout(() => map.invalidateSize(), 300);
+
+        // --- Добавляем пин в центр полигона ---
+        const center = bounds.getCenter();
+        const yandexUrl = `https://yandex.ru/maps/?pt=${center.lng},${center.lat}&z=17&l=map`;
+        const pinPopup = `
+          <div style="text-align:center;">
+            📍 <b>${cad}</b><br>
+            <a href="${yandexUrl}" target="_blank" style="color:#3b82f6;">
+              Открыть в Яндекс.Картах
+            </a>
+          </div>
+        `;
+
+        const marker = L.marker(center).addTo(map);
+        marker.bindPopup(pinPopup).openPopup();
+
+        loading.remove();
+      })
+      .catch(err => {
+        console.error(err);
+        loading.innerHTML = `Ошибка загрузки карты: ${err.message}`;
+      });
+  </script>
+</body>
+</html>

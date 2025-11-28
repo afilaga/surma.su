@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Каталог участков</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Surma Altai — внутренний каталог земельных участков Республики Алтай: фильтры, заметки менеджеров, экспорт отчётов и GPT-описания."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:title" content="Surma Altai — каталог земельных участков" />
+    <meta
+      property="og:description"
+      content="Фильтрация участков по региону, кадастру и цене, заметки по клиентам и генерация описаний через YandexGPT."
+    />
+    <meta property="og:url" content="http://surma.su/" />
+    <meta property="og:site_name" content="Surma Altai" />
+    <meta property="og:image" content="http://surma.su/og-preview.png" />
+    <meta property="og:image:secure_url" content="http://surma.su/og-preview.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Интерфейс каталога Surma Altai с карточкой участков и фильтрами." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Surma Altai — каталог земельных участков" />
+    <meta
+      name="twitter:description"
+      content="Фильтры, заметки и GPT-описания участков в Республике Алтай и соседних регионах."
+    />
+    <meta name="twitter:image" content="http://surma.su/og-preview.png" />
+    <meta name="twitter:image:alt" content="Интерфейс каталога Surma Altai с карточкой участков и фильтрами." />
+    <link rel="canonical" href="http://surma.su/" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js" defer></script>
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-main">
+        <div class="topbar-title">
+          <h1>Каталог участков</h1>
+          <p class="topbar-tagline">
+            Витрина Surma Altai по базe земли: фильтры по кадастру и цене, заметки менеджеров, быстрый экспорт и
+            генерация описаний через YandexGPT.
+          </p>
+        </div>
+        <a href="https://disk.yandex.ru/d/SovJYJChkoNgIw/%D0%B0%D0%BB%D1%82%D0%B0%D0%B9%20%D1%80%D0%B0%D0%B9%D0%BE%D0%BD%D1%8B%20%D0%B8%20%D0%B7%D0%B5%D0%BC%D0%BB%D0%B8" target="_blank" rel="noopener" class="topbar-link">
+          Фото по районам
+        </a>
+      </div>
+      <div class="filters">
+        <label class="filter">
+          <span>Район</span>
+          <select id="regionFilter">
+            <option value="">Все районы</option>
+          </select>
+        </label>
+        <label class="filter">
+          <span>Кадастровый номер</span>
+          <input
+            type="search"
+            id="cadastralSearch"
+            placeholder="Например, 04:05:060402:4134"
+            autocomplete="off"
+          />
+        </label>
+        <label class="filter">
+          <span>Артикул</span>
+          <input
+            type="search"
+            id="articleSearch"
+            placeholder="Например, ALT-001"
+            autocomplete="off"
+          />
+        </label>
+        <label class="filter range-filter">
+          <span>Площадь, га</span>
+          <div class="range-inputs">
+            <input type="number" id="areaMin" placeholder="от" step="0.1" min="0" />
+            <span class="range-separator">—</span>
+            <input type="number" id="areaMax" placeholder="до" step="0.1" min="0" />
+          </div>
+        </label>
+        <label class="filter range-filter">
+          <span>Цена, руб (участок)</span>
+          <div class="range-inputs">
+            <input type="number" id="priceMin" placeholder="от" step="1000" min="0" />
+            <span class="range-separator">—</span>
+            <input type="number" id="priceMax" placeholder="до" step="1000" min="0" />
+          </div>
+        </label>
+        <button id="resetButton" class="ghost">Сбросить</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="list-panel">
+        <h2>Результаты</h2>
+        <p class="results-meta">
+          Найдено: <span id="resultsCount">0</span>
+        </p>
+        <div class="results-table-wrapper">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>Кадастр</th>
+                <th>Артикул</th>
+                <th>Площадь, га</th>
+                <th>Цена / сотка</th>
+                <th>Цена / участок</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody"></tbody>
+          </table>
+        </div>
+        <button id="loadMoreButton" class="ghost load-more-button" hidden>Показать ещё</button>
+      </section>
+
+      <section class="details-panel" id="detailsPanel">
+        <div id="detailsPlaceholder" class="placeholder">
+          Выберите участок, чтобы увидеть подробности.
+        </div>
+        <article id="detailsCard" hidden>
+          <header>
+            <h2 id="detailsTitle">Кадастр</h2>
+            <p id="detailsRegion" class="muted"></p>
+          </header>
+
+          <dl class="details-grid">
+            <div>
+              <dt>Артикул</dt>
+              <dd id="detailsArticle"></dd>
+            </div>
+            <div>
+              <dt>Номер в ячейке</dt>
+              <dd id="detailsMatchIndex"></dd>
+            </div>
+            <div>
+              <dt>Площадь, га</dt>
+              <dd id="detailsArea"></dd>
+            </div>
+            <div>
+              <dt>Цена за сотку (руб)</dt>
+              <dd id="detailsPriceSotka"></dd>
+            </div>
+            <div>
+              <dt>Цена за участок (руб)</dt>
+              <dd id="detailsPricePlot"></dd>
+            </div>
+            <div>
+              <dt>Допустимая скидка</dt>
+              <dd id="detailsDiscount"></dd>
+            </div>
+            <div>
+              <dt>Продажа</dt>
+              <dd id="detailsWholesale"></dd>
+            </div>
+            <div>
+              <dt>ВРИ / Категория</dt>
+              <dd id="detailsLandUse"></dd>
+            </div>
+            <div>
+              <dt>Рекоменд. назначение</dt>
+              <dd id="detailsUsage"></dd>
+            </div>
+            <div class="grid-full">
+              <dt>Исходное значение ячейки</dt>
+              <dd id="detailsCadastralRaw"></dd>
+            </div>
+            <div class="grid-full">
+              <dt>Расшифровка назначений</dt>
+              <dd id="detailsUsageDecoded"></dd>
+            </div>
+            <div>
+              <dt>Собственник</dt>
+              <dd id="detailsOwner"></dd>
+            </div>
+            <div>
+              <dt>Партнёр</dt>
+              <dd id="detailsPartner"></dd>
+            </div>
+            <div>
+              <dt>Дата права</dt>
+              <dd id="detailsRightDate"></dd>
+            </div>
+            <div>
+              <dt>Баланс. стоимость</dt>
+              <dd id="detailsBalance"></dd>
+            </div>
+            <div class="grid-full">
+              <dt>Служебные отметки</dt>
+              <dd id="detailsNotes"></dd>
+            </div>
+            <div class="grid-full">
+              <dt>Контекст</dt>
+              <dd id="detailsContext"></dd>
+            </div>
+            <div class="grid-full">
+              <dt>Рекомендации</dt>
+              <dd id="detailsRecommendations"></dd>
+            </div>
+            <div class="grid-full">
+              <dt>Описание расположения</dt>
+              <dd id="detailsLocation"></dd>
+            </div>
+            <div class="grid-full">
+              <dt>Наилучшее использование</dt>
+              <dd id="detailsBestUse"></dd>
+            </div>
+            <div class="grid-full">
+              <dt>Карта участка</dt>
+              <dd id="detailsMap"><span class="placeholder-text">—</span></dd>
+            </div>
+            <div class="grid-full">
+              <dt>Фото</dt>
+              <dd id="detailsPhotos"><span class="placeholder-text">—</span></dd>
+            </div>
+          </dl>
+
+          <section class="generator">
+            <header class="generator-header">
+              <h3>Черновик описания</h3>
+              <div class="generator-header-actions">
+                <button id="generateButton" class="primary">Сгенерировать шаблон</button>
+                <button id="generateGptButton" class="primary outline" disabled>GPT-описание</button>
+              </div>
+            </header>
+            <textarea id="descriptionDraft" rows="10" placeholder="Описание появится здесь"></textarea>
+            <div class="generator-actions">
+              <button id="saveDescriptionButton" class="primary outline">Сохранить описание</button>
+              <button id="copyButton" class="ghost">Скопировать</button>
+            </div>
+            <div class="export-actions">
+              <button id="exportRtfButton" class="primary" disabled>Экспорт в RTF</button>
+              <button id="exportPdfButton" class="primary outline" disabled>PDF / Печать</button>
+            </div>
+            <div class="link-field">
+              <label for="avitoLink">Ссылка на объявление Авито</label>
+              <input id="avitoLink" type="url" placeholder="https://www.avito.ru/..." />
+              <div class="link-actions">
+                <button id="saveLinkButton" class="primary outline">Сохранить ссылку</button>
+                <button id="copyLinkButton" class="ghost">Скопировать ссылку</button>
+                <button id="openLinkButton" class="ghost">Открыть</button>
+              </div>
+            </div>
+
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-info">
+        <span>Данные из <code>normalized/all_regions.csv</code>. Версия UX-прототипа.</span>
+        <span class="footer-author">© 2025 Андрей Филатьев · <a href="mailto:pro@afilatiev.ru">pro@afilatiev.ru</a></span>
+        <div class="footer-links">
+          <a href="https://t.me/nspd2dxfbot" target="_blank" rel="noopener">Бот: НСПД → KML/MSK</a>
+          <a href="https://earth.google.com/web/" target="_blank" rel="noopener">Google Earth</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

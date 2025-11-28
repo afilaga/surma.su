@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Операционная система продаж участков — Алтай v1.0</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-alt: #020817;
+      --card: #020617;
+      --card-soft: #02081f;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.16);
+      --accent-strong: #0ea5e9;
+      --muted: #9ca3af;
+      --text: #e5e7eb;
+      --border: rgba(148, 163, 184, 0.25);
+      --danger: #fb7185;
+      --success: #4ade80;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      --radius-lg: 18px;
+      --radius-sm: 10px;
+      --shadow-soft: 0 32px 80px rgba(15, 23, 42, 0.9);
+      --shadow-card: 0 20px 60px rgba(15, 23, 42, 0.8);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-main);
+      background:
+        radial-gradient(circle at top left, #0f172a 0, #020617 55%, #000 100%);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 16px 72px;
+    }
+
+    @media (min-width: 960px) {
+      .page {
+        padding: 40px 12px 96px;
+      }
+    }
+
+    /* HERO */
+
+    .hero {
+      border-radius: 28px;
+      padding: 28px 22px 26px;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.2), transparent 55%),
+        linear-gradient(145deg, #020617, #020617 40%, #02081f 100%);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (min-width: 960px) {
+      .hero {
+        padding: 32px 32px 30px;
+      }
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .tag {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background-color: rgba(15, 23, 42, 0.8);
+      color: var(--muted);
+    }
+
+    .tag-strong {
+      border-color: rgba(56, 189, 248, 0.7);
+      color: var(--accent-strong);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .hero-main {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr);
+      gap: 16px;
+    }
+
+    @media (min-width: 960px) {
+      .hero-main {
+        grid-template-columns: minmax(0, 3.5fr) minmax(0, 2.2fr);
+        align-items: flex-end;
+      }
+    }
+
+    .hero-title {
+      font-size: clamp(26px, 3vw, 32px);
+      line-height: 1.1;
+      font-weight: 650;
+      margin: 0 0 10px;
+    }
+
+    .hero-subtitle {
+      max-width: 540px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .hero-pill span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-strong);
+      font-size: 11px;
+    }
+
+    .hero-right {
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.12), transparent 60%),
+      linear-gradient(160deg, rgba(15, 23, 42, 0.96), #020617);
+      padding: 14px 16px 14px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-right h3 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      margin: 0 0 10px;
+    }
+
+    .hero-right ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .hero-right li + li {
+      margin-top: 6px;
+    }
+
+    .pill-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      margin-top: 10px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.08);
+      color: var(--success);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+    }
+
+    .pill-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--success);
+      box-shadow: 0 0 12px rgba(74, 222, 128, 0.95);
+    }
+
+    /* LAYOUT SECTIONS */
+
+    .grid {
+      display: grid;
+      gap: 18px;
+      margin-top: 26px;
+    }
+
+    @media (min-width: 960px) {
+      .grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .section {
+      margin-top: 32px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .section-heading {
+      font-size: 20px;
+      margin: 0 0 12px;
+    }
+
+    .section-lead {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 720px;
+    }
+
+    /* CARDS */
+
+    .card {
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.7), transparent 55%),
+                  linear-gradient(145deg, #020617, #02081f);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 18px 18px 16px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-soft {
+      background: linear-gradient(140deg, rgba(15, 23, 42, 0.96), #020617);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(55, 65, 81, 0.85);
+      padding: 16px 18px 14px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .card-label {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .card-label-accent {
+      border-color: rgba(56, 189, 248, 0.8);
+      color: var(--accent-strong);
+      background: rgba(15, 23, 42, 0.98);
+    }
+
+    .card-body {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .card-body ul {
+      padding-left: 16px;
+      margin: 8px 0 0;
+    }
+
+    .card-body li + li {
+      margin-top: 4px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      color: var(--muted);
+    }
+
+    .chip-strong {
+      border-color: rgba(56, 189, 248, 0.9);
+      color: var(--accent-strong);
+      background: rgba(15, 23, 42, 0.98);
+    }
+
+    /* TIMELINE */
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    @media (min-width: 960px) {
+      .timeline {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    .timeline-item {
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 55%),
+                  linear-gradient(150deg, #020617, #02081f);
+      padding: 10px 11px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      position: relative;
+    }
+
+    .timeline-item h4 {
+      margin: 0 0 6px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-strong);
+    }
+
+    .timeline-item ul {
+      margin: 0;
+      padding-left: 14px;
+    }
+
+    .timeline-item li + li {
+      margin-top: 2px;
+    }
+
+    /* FOOTER */
+
+    .footer {
+      margin-top: 32px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .footer span strong {
+      color: var(--accent-strong);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-tags">
+      <div class="tag tag-strong">Altai Land System · v1.0</div>
+      <div class="tag">Операционная схема продаж участков</div>
+      <div class="tag">Внутренняя презентация</div>
+    </div>
+
+    <div class="hero-main">
+      <div>
+        <h1 class="hero-title">Система, в&nbsp;которой нельзя сказать:<br>«У&nbsp;вас этого нет»</h1>
+        <p class="hero-subtitle">
+          Архитектура продаж участков Алтая: два SEO-конвейера, лэндинги,
+          CRM, партнёрский контур и&nbsp;инструменты для отдела продаж, риэлторов и&nbsp;девелоперов.
+          Цель&nbsp;&mdash; превратить склад земли в&nbsp;упакованный, управляемый продукт.
+        </p>
+        <div class="hero-pill">
+          <span>AF</span>
+          <div>
+            Архитектор системы: <strong>Андрей Филатьев</strong><br>
+            Роль: стратегия, упаковка, контент, работа с&nbsp;нейросетями.
+          </div>
+        </div>
+      </div>
+
+      <aside class="hero-right">
+        <h3>Ключевая идея</h3>
+        <ul>
+          <li>У нас есть товар, но нет системных продавцов.</li>
+          <li>Мы создаём инструменты так, чтобы:
+            <br>&mdash; отдел продаж не буксовал;
+            <br>&mdash; партнёры и риэлторы не искали материалы;
+            <br>&mdash; клиент видел готовый продукт, а не хаос ссылок.
+          </li>
+          <li>Логика Сочи: подготовка &gt; привычки рынка.</li>
+        </ul>
+        <div class="pill-status">
+          <div class="pill-status-dot"></div>
+          Состояние: ядро стратегии сформировано, идёт упаковка.
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- STRATEGY -->
+  <section class="section">
+    <div class="section-title">01 · Общая стратегия</div>
+    <h2 class="section-heading">От склада участков к операционной системе продаж</h2>
+    <p class="section-lead">
+      Мы строим не «сайт» и не «маркетинг», а <strong>ОС продаж</strong>:
+      каждый канал, каждый документ и каждый лэндинг
+      встроены в единую цепочку: <em>трафик → лендинг → CRM → отдел продаж → сделка</em>.
+    </p>
+
+    <div class="grid grid-2">
+      <article class="card">
+        <div class="card-header">
+          <div class="card-title">Цели системы</div>
+          <div class="card-label card-label-accent">Фокус</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>Получить первые 1–3 продажи и открыть стабильный бюджет на продвижение.</li>
+            <li>Создать набор инструментов, при котором партнёры и риэлторы могут
+              продавать без участия руководителя.</li>
+            <li>Закрепиться в поиске и социальных сетях через сеть микролэндингов и контент.</li>
+            <li>Сделать процесс сделки прозрачным и удобным для всех сторон.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-header">
+          <div class="card-title">Принципы</div>
+          <div class="card-label">Как мы работаем</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li><strong>Автономность</strong>: система должна жить без ежедневной ручной работы.</li>
+            <li><strong>Стандартизация</strong>: единый шаблон лэндингов, PDF, презентаций.</li>
+            <li><strong>Двухконтурность</strong>: два SEO-проекта (Андрей / Коля) с одними и теми же участками.</li>
+            <li><strong>Инструменты вместо просьб</strong>: продавцам и партнёрам не нужно «что-то придумать»,
+              всё готово заранее.</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ROLES -->
+  <section class="section">
+    <div class="section-title">02 · Роли и ответственность</div>
+    <h2 class="section-heading">Кто за что отвечает</h2>
+
+    <div class="grid grid-2">
+      <article class="card-soft">
+        <div class="card-header">
+          <div class="card-title">Андрей Филатьев</div>
+          <div class="card-label card-label-accent">Архитектор системы</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>Стратегия продаж и структура продукта.</li>
+            <li>Сеть микролэндингов: концепция, тексты, SEO-каркас.</li>
+            <li>Визуал и контент (нейросети, Syntx, Seedream, NanoBanana, Veo).</li>
+            <li>Материалы для отдела продаж, риэлторов и девелоперов.</li>
+            <li>Постановка задач по CRM и интеграциям.</li>
+          </ul>
+          <div class="chip-row">
+            <div class="chip chip-strong">Стратегия</div>
+            <div class="chip">AI-продакшн</div>
+            <div class="chip">Лэндинги</div>
+            <div class="chip">Материалы для партнёров</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card-soft">
+        <div class="card-header">
+          <div class="card-title">Коля</div>
+          <div class="card-label">Верстальщик лэндингов</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>Сборка и верстка лэндингов по шаблону (Tilda и др.).</li>
+            <li>Отдельная ветка SEO-сайта с теми же участками (эффект «двойной выдачи»).</li>
+            <li>Адаптив, скорость, визуальная консистентность.</li>
+          </ul>
+          <div class="chip-row">
+            <div class="chip">Фронтенд</div>
+            <div class="chip">Конкурирующий SEO-контур</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card-soft">
+        <div class="card-header">
+          <div class="card-title">Бэкенд-разработчик (Bitrix)</div>
+          <div class="card-label">Интеграции и CRM</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>Настройка форм заявок на лэндингах:
+              &laquo;Запрос каталога / Оставьте контакт&raquo;.</li>
+            <li>Связка лэндингов с CRM и Bitrix (воронки, статусы, уведомления).</li>
+            <li>Интеграция QR-кодов с Avito → сайт → CRM.</li>
+            <li>Подключение аналитики, передачa событий в CRM.</li>
+          </ul>
+          <div class="chip-row">
+            <div class="chip">Bitrix</div>
+            <div class="chip">Формы</div>
+            <div class="chip">API / вебхуки</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card-soft">
+        <div class="card-header">
+          <div class="card-title">Отдел продаж</div>
+          <div class="card-label">Работа с лидами и партнёрами</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>Обработка входящих лидов с лэндингов и Avito.</li>
+            <li>Работа с риэлторами и партнёрами по комиссиям.</li>
+            <li>Дача обратной связи по болям: где буксует сделка, каких материалов не хватает.</li>
+          </ul>
+          <div class="chip-row">
+            <div class="chip">Лиды</div>
+            <div class="chip">Партнёры</div>
+            <div class="chip">Фидбек в систему</div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- LANDINGS & SEO -->
+  <section class="section">
+    <div class="section-title">03 · Лэндинги и SEO-конвейер</div>
+    <h2 class="section-heading">Два конкурирующих проекта с одними и теми же участками</h2>
+    <p class="section-lead">
+      Логика как на Avito: <strong>один товар — несколько витрин</strong>.
+      Два сайта (Андрей и Коля) с разными структурами и ключами занимают
+      больше места в поисковой выдаче и приводят трафик в одну CRM.
+    </p>
+
+    <div class="grid grid-2">
+      <article class="card">
+        <div class="card-header">
+          <div class="card-title">Сеть микролэндингов</div>
+          <div class="card-label card-label-accent">База трафика</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>Под каждый район Алтая — отдельный лэндинг.</li>
+            <li>Под каждый крупный массив — отдельный лэндинг с картой и сценариями.</li>
+            <li>Под каждый тип запроса: 
+              <em>«по бюджету», «по сценарию жизни», «инвестиции»</em> — отдельные входы.</li>
+            <li>Цель: 1 лэндинг ≈ 1 час работы; в день проще собрать лэндинг, чем Avito.</li>
+          </ul>
+          <div class="chip-row">
+            <div class="chip">SEO-рост</div>
+            <div class="chip">Быстрое штампование</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-header">
+          <div class="card-title">Структура каждого лэндинга</div>
+          <div class="card-label">Единый шаблон</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>1 экран — позиционирование и CTA (&laquo;Подбор участка / Запрос каталога&raquo;).</li>
+            <li>2 экран — карта / район / логистика.</li>
+            <li>3 экран — сценарии использования (дом, инвестиции, дача).</li>
+            <li>4 экран — доступные участки, базовые параметры.</li>
+            <li>5 экран — преимущества работы через нашу систему.</li>
+            <li>Форма заявки, подключенная к CRM и Bitrix.</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- AVITO & QR -->
+  <section class="section">
+    <div class="section-title">04 · Avito и сегментация по цене</div>
+    <h2 class="section-heading">Люкс / Эконом + QR → сайт → CRM</h2>
+
+    <div class="grid grid-2">
+      <article class="card-soft">
+        <div class="card-header">
+          <div class="card-title">Два класса объявлений</div>
+          <div class="card-label">Разные покупатели</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li><strong>Люкс</strong>: 
+              лучшие участки, сильный визуал (Veo / Seedream / NanoBanana),
+              акцент на видах, тишине, приватности.</li>
+            <li><strong>Эконом</strong>: 
+              участки попроще, массовый сегмент, максимально ясная информация.</li>
+            <li>Каждое объявление — отдельный вход с чётким позиционированием.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="card-soft">
+        <div class="card-header">
+          <div class="card-title">QR-цепочка</div>
+          <div class="card-label card-label-accent">Собственный трафик</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>Каждое Avito-объявление содержит QR-код → переход на профильный лэндинг.</li>
+            <li>Лэндинг ловит пользователя, прокручивает сценарий, собирает контакт.</li>
+            <li>Форма заявки → Bitrix → менеджер отдела продаж.</li>
+            <li>Параллельно срабатывают Метрика и пиксели для ретаргетинга.</li>
+          </ul>
+          <div class="chip-row">
+            <div class="chip chip-strong">Avito → наши активы</div>
+            <div class="chip">Без потери контактов</div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- SALES TOOLS -->
+  <section class="section">
+    <div class="section-title">05 · Инструменты для продавцов и партнёров</div>
+    <h2 class="section-heading">Вооружаем отдел продаж, риэлторов и девелоперов</h2>
+    <p class="section-lead">
+      Задача: отдел продаж и партнёры не придумывают решения на ходу.
+      Они работают с готовыми материалами, где уже закрыты основные вопросы клиента.
+    </p>
+
+    <div class="grid grid-2">
+      <article class="card">
+        <div class="card-header">
+          <div class="card-title">Отдел продаж</div>
+          <div class="card-label card-label-accent">Внутренний пакет</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>Презентация компании и продукта (10–12 слайдов).</li>
+            <li>Шаблоны презентаций массивов (карта, фото/рендеры, сценарии, цены).</li>
+            <li>PDF для клиента: краткая инфо по каждому массиву.</li>
+            <li>Скрипты и FAQ по типовым возражениям.</li>
+            <li>Регулярный сбор болей: где теряются сделки, чего не хватает.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-header">
+          <div class="card-title">Риэлторы и партнёры</div>
+          <div class="card-label">Внешний пакет</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>Короткий PDF (1–2 страницы) для отправки клиенту.</li>
+            <li>Ссылка на профильный лэндинг по участку/массиву.</li>
+            <li>Карта и таблица доступных площадей.</li>
+            <li>Описание комиссий и условий работы.</li>
+            <li>Набор текстов для переписки с клиентами, чтобы не писать с нуля.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-header">
+          <div class="card-title">Девелоперы и агенства</div>
+          <div class="card-label">B2B-контур</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>Презентации массивов для застройщиков и девелоперов.</li>
+            <li>Аргументация, почему через нас удобно продавать:
+              прозрачность, готовые материалы, понятная юридика.</li>
+            <li>Онлайн-сервис с описанием места, доступными площадями и схемами.</li>
+            <li>Прямые контакты менеджеров и понятная модель комиссий.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-header">
+          <div class="card-title">Ключевой стандарт</div>
+          <div class="card-label card-label-accent">«У нас всё есть»</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>Любой вопрос партнёра, риэлтора или клиента должен закрываться
+              готовым документом, лэндингом или схемой.</li>
+            <li>Фраза &laquo;у вас этого нет&raquo; должна исчезнуть из переговоров.</li>
+            <li>Если отдел продаж сообщает о новой боли — она превращается
+              в инструмент (презентация, PDF, блок на сайте).</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ANALYTICS -->
+  <section class="section">
+    <div class="section-title">06 · Аналитика и ретаргетинг</div>
+    <h2 class="section-heading">Каждое действие клиента учитывается</h2>
+
+    <div class="grid grid-2">
+      <article class="card-soft">
+        <div class="card-header">
+          <div class="card-title">Подключённые системы</div>
+          <div class="card-label">Метрика и пиксели</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>Яндекс.Метрика и GA4 на всех лэндингах.</li>
+            <li>Пиксели VK / Meta (Instagram, Threads) / при необходимости TikTok.</li>
+            <li>События форм и кликов передаются в Bitrix / CRM.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="card-soft">
+        <div class="card-header">
+          <div class="card-title">Ретаргетинг</div>
+          <div class="card-label card-label-accent">Второй удар</div>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li>Любой посетитель лэндингов попадает в аудиторию для догрева.</li>
+            <li>Рекламные кампании по тёплой аудитории дешевле и эффективнее,
+              чем холодный трафик.</li>
+            <li>Сценарии кампаний: &laquo;подбор участка за 48 часов&raquo;,
+              &laquo;каталог по вашему бюджету&raquo; и др.</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- 30-DAY PLAN -->
+  <section class="section">
+    <div class="section-title">07 · План на 30 дней</div>
+    <h2 class="section-heading">Развёртывание версии 1.0</h2>
+    <p class="section-lead">
+      Цель первого месяца — развернуть работающий каркас:
+      лэндинги, Avito-цепочку, первый набор презентаций и
+      минимально необходимую CRM-инфраструктуру.
+    </p>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <h4>Неделя 1</h4>
+        <ul>
+          <li>Утверждение единого шаблона лэндинга.</li>
+          <li>Сборка 3–5 базовых лэндингов по районам.</li>
+          <li>Презентация &laquo;Кто мы и что продаём&raquo; для отдела продаж.</li>
+          <li>Постановка задач бэкендеру по формам и CRM.</li>
+        </ul>
+      </div>
+      <div class="timeline-item">
+        <h4>Неделя 2</h4>
+        <ul>
+          <li>Расширение сети лэндингов (до 10+).</li>
+          <li>Старт &laquo;Люкс / Эконом&raquo; на Avito, первые QR.</li>
+          <li>PDF-шаблоны для отдела продаж и риэлторов.</li>
+          <li>Сбор боли отдела продаж, корректировки материалов.</li>
+        </ul>
+      </div>
+      <div class="timeline-item">
+        <h4>Неделя 3</h4>
+        <ul>
+          <li>Лэндинги под бюджеты и сценарии (дом / инвестиции / дача).</li>
+          <li>Презентации массивов для девелоперов.</li>
+          <li>Подключение ретаргетинга и базовых кампаний.</li>
+        </ul>
+      </div>
+      <div class="timeline-item">
+        <h4>Неделя 4</h4>
+        <ul>
+          <li>Оптимизация по аналитике: какие лэндинги и объявления дают лидов.</li>
+          <li>Фиксация стандартов по материалам и обновлению каталога.</li>
+          <li>Подготовка к масштабированию (EN-контент, wellness-линия, дополнительные каналы).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span>Версия документа: <strong>Altai OS v1.0</strong></span>
+    <span>Ответственный за архитектуру: <strong>Андрей Филатьев</strong></span>
+  </footer>
+</div>
+</body>
+</html>

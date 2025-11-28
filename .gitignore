@@ -1,0 +1,4 @@
+__pycache__/
+data/notes.json
+gpt5-pro.env
+*.env
